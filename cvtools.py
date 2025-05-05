@@ -487,28 +487,29 @@ def extract_features(img,
         # Raw color (no background removal)
         #cv2.imwrite(os.path.join(abs_path,file_prefix+"_rawcolor.jpg"),output['rawcolor'])
         # Save the processed image and binary mask
-        cv2.imwrite(os.path.join(abs_path,file_prefix+".jpg"),output['image'])
-        cv2.imwrite(os.path.join(abs_path,file_prefix+"_binary.png"),output['binary'])
+        # FLB we don't need all of these files! only output rawcolor
+        #cv2.imwrite(os.path.join(abs_path,file_prefix+".jpg"),output['image'])
+        #cv2.imwrite(os.path.join(abs_path,file_prefix+"_binary.png"),output['binary'])
         cv2.imwrite(os.path.join(abs_path,file_prefix+"_rawcolor.png"),output['rawcolor'])
-        cv2.imwrite(os.path.join(abs_path,file_prefix+"_rawcolor.jpg"),output['rawcolor'])
-        cv2.imwrite(os.path.join(abs_path,file_prefix+"_ellipse.png"),output['data'])
-        cv2.imwrite(os.path.join(abs_path,file_prefix+"_ellipse.jpg"),output['data'])
-        cv2.imwrite(os.path.join(abs_path,file_prefix+"_edges.png"),255*edges_mag)
-        cv2.imwrite(os.path.join(abs_path,file_prefix+"_edges.jpg"),255*edges_mag)
-        cv2.imwrite(os.path.join(abs_path,file_prefix+"_mask.png"),255*blurd_bw_img)
+        #cv2.imwrite(os.path.join(abs_path,file_prefix+"_rawcolor.jpg"),output['rawcolor'])
+        #cv2.imwrite(os.path.join(abs_path,file_prefix+"_ellipse.png"),output['data'])
+        #cv2.imwrite(os.path.join(abs_path,file_prefix+"_ellipse.jpg"),output['data'])
+        #cv2.imwrite(os.path.join(abs_path,file_prefix+"_edges.png"),255*edges_mag)
+        #cv2.imwrite(os.path.join(abs_path,file_prefix+"_edges.jpg"),255*edges_mag)
+        #cv2.imwrite(os.path.join(abs_path,file_prefix+"_mask.png"),255*blurd_bw_img)
         if original.size:
             cv2.imwrite(os.path.join(abs_path,file_prefix+"_original.tif"),original)
 
         cmd = ('zip -mqj ' + os.path.join(abs_path,file_prefix+'.zip ') +
-                os.path.join(abs_path,file_prefix+"_binary.png ") +
-                os.path.join(abs_path,file_prefix+"_rawcolor.png ") +
-                os.path.join(abs_path,file_prefix+"_rawcolor.jpg ") +
-                os.path.join(abs_path,file_prefix+"_ellipse.png ") +
-                os.path.join(abs_path,file_prefix+"_ellipse.jpg ") +
-                os.path.join(abs_path,file_prefix+"_edges.png ") +
-                os.path.join(abs_path,file_prefix+"_mask.png ") +
-                os.path.join(abs_path,file_prefix+"_edges.jpg ") +
-                os.path.join(abs_path,file_prefix+"_features.csv")
+                #os.path.join(abs_path,file_prefix+"_binary.png ") +
+                os.path.join(abs_path,file_prefix+"_rawcolor.png ") #+
+                #os.path.join(abs_path,file_prefix+"_rawcolor.jpg ") #+
+                #os.path.join(abs_path,file_prefix+"_ellipse.png ") +
+                #os.path.join(abs_path,file_prefix+"_ellipse.jpg ") +
+                #os.path.join(abs_path,file_prefix+"_edges.png ") +
+                #os.path.join(abs_path,file_prefix+"_mask.png ") +
+                #os.path.join(abs_path,file_prefix+"_edges.jpg ") +
+                #os.path.join(abs_path,file_prefix+"_features.csv")
             )
         if original.size:
             cmd = cmd + " " + os.path.join(abs_path,file_prefix+"_original.tif")
