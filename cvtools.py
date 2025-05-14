@@ -25,6 +25,7 @@ from skimage.draw import ellipse_perimeter
 import numpy as np
 from scipy import ndimage
 from loguru import logger
+import pdb
 
 from skimage.segmentation import morphological_chan_vese, checkerboard_level_set 
 
@@ -490,19 +491,41 @@ def extract_features(img,
         # FLB we don't need all of these files! only output rawcolor
         #cv2.imwrite(os.path.join(abs_path,file_prefix+".jpg"),output['image'])
         #cv2.imwrite(os.path.join(abs_path,file_prefix+"_binary.png"),output['binary'])
+        abs_path=abs_path.replace('\\','/')
+        #abs_path=abs_path.replace('/','\\')
+        #print('abs_path='+abs_path)
+        #print('file_prefix='+file_prefix)
+        #pdb.set_trace()
+        # FLB adjust so we output the model needed shape here
+        # 
+        myroi=output['rawcolor']
+        h, w, _ = myroi.shape
+        max_dim = max(h, w)
+        pad_h = (max_dim - h) // 2
+        pad_w = (max_dim - w) // 2
+        roi_padded = cv2.copyMakeBorder(myroi, pad_h, pad_h, pad_w, pad_w, cv2.BORDER_CONSTANT, value=[0, 0, 0])
+        # what if image is bigger than 224x224?
+        # If the image is tiny this magnifies it.  
+        roi_padded_rescaled = cv2.resize(roi_padded, (224, 224))
+        cv2.imwrite(os.path.join(abs_path,file_prefix+"_rawcolor.jpg"),roi_padded_rescaled)
+        # End of FLB adjustment
+        # original line is below.
         cv2.imwrite(os.path.join(abs_path,file_prefix+"_rawcolor.png"),output['rawcolor'])
+        #pdb.set_trace()
         #cv2.imwrite(os.path.join(abs_path,file_prefix+"_rawcolor.jpg"),output['rawcolor'])
         #cv2.imwrite(os.path.join(abs_path,file_prefix+"_ellipse.png"),output['data'])
         #cv2.imwrite(os.path.join(abs_path,file_prefix+"_ellipse.jpg"),output['data'])
         #cv2.imwrite(os.path.join(abs_path,file_prefix+"_edges.png"),255*edges_mag)
         #cv2.imwrite(os.path.join(abs_path,file_prefix+"_edges.jpg"),255*edges_mag)
         #cv2.imwrite(os.path.join(abs_path,file_prefix+"_mask.png"),255*blurd_bw_img)
-        if original.size:
-            cv2.imwrite(os.path.join(abs_path,file_prefix+"_original.tif"),original)
-
-        cmd = ('zip -mqj ' + os.path.join(abs_path,file_prefix+'.zip ') +
+        #if original.size:
+        #    cv2.imwrite(os.path.join(abs_path,file_prefix+"_original.tif"),original)
+        # we don't want a zip file so 
+        #pdb.set_trace()
+        #cmd = os.path.join(abs_path,file_prefix+"_rawcolor.png") # command for a file does nothing
+        #cmd = ('zip -mqj ' + os.path.join(abs_path,file_prefix+'.zip ') +
                 #os.path.join(abs_path,file_prefix+"_binary.png ") +
-                os.path.join(abs_path,file_prefix+"_rawcolor.png ") #+
+                #os.path.join(abs_path,file_prefix+"_rawcolor.png ") #+
                 #os.path.join(abs_path,file_prefix+"_rawcolor.jpg ") #+
                 #os.path.join(abs_path,file_prefix+"_ellipse.png ") +
                 #os.path.join(abs_path,file_prefix+"_ellipse.jpg ") +
@@ -510,11 +533,11 @@ def extract_features(img,
                 #os.path.join(abs_path,file_prefix+"_mask.png ") +
                 #os.path.join(abs_path,file_prefix+"_edges.jpg ") +
                 #os.path.join(abs_path,file_prefix+"_features.csv")
-            )
-        if original.size:
-            cmd = cmd + " " + os.path.join(abs_path,file_prefix+"_original.tif")
+            #)
+        #if original.size:
+        #    cmd = cmd + " " + os.path.join(abs_path,file_prefix+"_original.tif")
 
-        os.system(cmd)
+        #    os.system(cmd) # tabbed into the if command as we don't do anything otherwise..
 
     #print "proccessing time " + str(time.time()-start_time)
 
