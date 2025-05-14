@@ -1,0 +1,11 @@
+[
+    {
+        "pvtr_setting":"u:/planktivore/ptvr_proc_settings.json",
+        "maglev":"high_mag_cam_rois",
+        "inputdir":"Y:/2025-04-14-LRAH-27/",
+        "outputdir":"u:/planktivore/reformat_data/",
+        "subdir":"colorimages",
+        "maxfiles":1000,
+        "bayer_pattern":"COLOR_BAYER_RG2RGB"
+    }
+]
