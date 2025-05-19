@@ -10,7 +10,7 @@ from PIL import Image
 from pathlib import Path
 import time
 #sys.path.append('u:/planktivore')
-import cvtools
+import cvtools_modified as cvtools
 # 
 def convert_tif_to_rawcolor(thedir,outputdir,subdir,maxfiles,settings,ncount,dircount,lock1,lock2):
     # convert_tif_to_rawcolor(inputdir,outputdir,subdir, maxfiles,maglev,settings,ncount,dircount,lock1,lock2)
