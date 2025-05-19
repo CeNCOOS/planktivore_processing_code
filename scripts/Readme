@@ -1,1 +1,3 @@
+Code for processing raw planktivore "tif" images into full color "png" and "jpeg" images.
+The json_files are variables to be fed to the code to set some of the processing parameters so that they are not hard coded.
 
