@@ -9,7 +9,7 @@ import cv2
 from PIL import Image
 from pathlib import Path
 import time
-sys.path.append('u:/planktivore')
+#sys.path.append('u:/planktivore')
 import cvtools
 # 
 def convert_tif_to_rawcolor(thedir,outputdir,subdir,maxfiles,settings,ncount,dircount,lock1,lock2):
