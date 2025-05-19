@@ -2,25 +2,18 @@ import sys
 import os
 import json
 import multiprocessing as mp
-import io 
 from glob import glob
 import tarfile
 import numpy as np
-import xarray as xr
-import pandas as pd
-import datetime as dt
 import cv2
 from PIL import Image
 from pathlib import Path
 import time
-import pdb
 sys.path.append('u:/planktivore')
 import cvtools
 # 
-#
-#
 def convert_tif_to_rawcolor(thedir,outputdir,subdir,maxfiles,settings,ncount,dircount,lock1,lock2):
-    # convert_tif_to_rawcolor(inputdir,outputdir,subdir, maxfiles,maglev,settings,ncount,dircount)
+    # convert_tif_to_rawcolor(inputdir,outputdir,subdir, maxfiles,maglev,settings,ncount,dircount,lock1,lock2)
     # inputdir: Directory with images to convert
     # outputdir: Directory for image output
     # subdir: structure of subdirectories under outputdir
@@ -29,26 +22,27 @@ def convert_tif_to_rawcolor(thedir,outputdir,subdir,maxfiles,settings,ncount,dir
     # settings: rims style settings
     # ncount: number of files already processed
     # dircount: number of directories already processed
+    # lock1: lock for the file count
+    # lock2: lock for the directory count
     current_subdir=dircount.value # start with the current subdirectory count
-    file_count=ncount.value
+    file_count=ncount.value # start with the current file count
     base_output_dir=os.path.join(outputdir,subdir) # this is the base output directory
     os.makedirs(base_output_dir,exist_ok=True) # create the base output directory if it doesn't exist
     fsize=os.stat(thedir).st_size # get the file size
     if fsize > 0:
+        # determine if we need to create a new subdirectory
         if file_count >= maxfiles:
             with lock2:
                 dircount.value += 1
                 current_subdir = dircount.value
-                #current_subdir += 1 # increment the subdirectory count
                 with lock1:
                     ncount.value=0
                     file_count=ncount.value
-            #current_subdir += 1 # increment the subdirectory count
-            #file_count = 0 # reset the file count
     # create the subdirectory
             subdir_path=os.path.join(base_output_dir,f'subdir_{current_subdir}') # create the subdirectory path
             os.makedirs(subdir_path,exist_ok=True) # create the subdirectory if it doesn't exist
             # create the subdirectory path
+            # Not sure how universal this is but it works for the current data
             idslash=thedir.rfind('/')
             abpath=thedir[0:idslash+1]
             ftif=thedir[idslash+1:]
@@ -58,11 +52,10 @@ def convert_tif_to_rawcolor(thedir,outputdir,subdir,maxfiles,settings,ncount,dir
             output=cvtools.extract_features(img_c_8bit,img,settings,
                                                 save_to_disk=True,
                                                 abs_path=os.path.join(subdir_path),file_prefix=fout)
+            # update the file count and lock value so multiprocessing works correctly.
             with lock1:
                 ncount.value += 1
                 file_count=ncount.value
-                #file_count += 1 # increment the file count
-            #file_count += 1 # increment the file count
     return #file_count,current_subdir
 
 def convert_tar_to_rawcolor(thedir,outputdir,subdir,maxfiles,settings,bayer_pattern,ncount,dircount,lock1,lock2):
@@ -71,21 +64,21 @@ def convert_tar_to_rawcolor(thedir,outputdir,subdir,maxfiles,settings,bayer_patt
         tnames=tobj.getmembers()
         numfiles=np.arange(1,len(tnames))
         current_subdir=dircount.value # start with the current subdirectory count
-        file_count=ncount.value
+        file_count=ncount.value # start with the current file count
         base_output_dir=os.path.join(outputdir,subdir) # this is the base output directory
         os.makedirs(base_output_dir,exist_ok=True) # create the base output directory if it doesn't exist      
         for afile in numfiles:
+            # check if we need to create a new subdirectory
             if ncount.value >= maxfiles:
                 with lock2:
                     dircount.value += 1
                     current_subdir = dircount.value
-                    #current_subdir += 1 # increment the subdirectory count
                     with lock1:
                         ncount.value=0
-                #file_count = 0 # reset the file count   
+                        file_count=ncount.value
             subdir_path=os.path.join(base_output_dir,f'subdir_{current_subdir}') # create the subdirectory path 
             os.makedirs(subdir_path,exist_ok=True) # create the subdirectory if it doesn't exist
-        # create the subdirectory path  
+            # create the subdirectory path  
             tmpf=tnames[afile].name
             # remove the dirctory at start of name?
             sslash=tmpf.rfind('/')
@@ -101,10 +94,10 @@ def convert_tar_to_rawcolor(thedir,outputdir,subdir,maxfiles,settings,bayer_patt
             output=cvtools.extract_features(img_c_8bit,imgc,settings,save_to_disk=True,
                                             abs_path=subdir_path,file_prefix=fout)
             with lock1:
-                ncount.value += 1 
-                #file_count += 1 # increment the file count
+                ncount.value += 1
+                file_count=ncount.value
 
-        #return file_count,current_subdir
+        return #file_count,current_subdir
 # 
 if __name__ == "__main__":
 # main
@@ -139,14 +132,11 @@ if __name__ == "__main__":
     mylist=[]
     # 'i' indicates we are using integers
     ncount=mp.Value('i',0) # set the number of files to 0
-    #ncount=0
     dircount=mp.Value('i',0) # set the number of directories to 0
-    #dircount=0
     lock1=mp.Lock() # create a lock for the file count
     lock2=mp.Lock() # create a lock for the directory count
     processes=[] # create a list of processes
-    # put in test range for testing
-    #pdb.set_trace()
+    # Loop through the directories and files and set up processing
     for adir in range(0,26):
         thedir=dirs[adir]
         if os.path.splitext(thedir)[1]=='.log':
@@ -162,69 +152,25 @@ if __name__ == "__main__":
             continue
         # for dos machine check the direction of slashes and fix
         thedir=thedir.replace("\\","/")
-        #if len(os.path.splitext(thedir)[1]) > 0:
-        #    mylist.append(thedir) # add the directory to the list
-        # check if the directory is a tar file or a tif file
         #
         # Now the file should be either a tar file or a tif file I think.
         #
-        #pdb.set_trace()
         if os.path.splitext(thedir)[1]=='.tar':
             # thedir is full path to the tar file
             # input dir is directory from which this was called but the base_directory
             # output is where we want to write to.
-            # problem is we have the full path and don't need to re glob the files.
-            #
-            #
             start_time=time.time()
             process=mp.Process(target=convert_tar_to_rawcolor, args=(thedir,output_dir,subdir,maxfiles,settings,bayer_pattern,ncount,dircount,lock1,lock2))
             processes.append(process)
             process.start()
-            #for process in processes:
-            #    process.join()
+            # old call kept for if we need it.
             #[ncount,dircount]=convert_tar_to_rawcolor(thedir,output_dir,subdir,maxfiles,settings,bayer_pattern,ncount,dircount)
             end_time=time.time()
             elapsed_time=end_time-start_time 
             print(f"Time taken to process {thedir}: {elapsed_time:.2f} seconds")
-        #pdb.set_trace()
-
-        #print(thedir)
-        # pass back how many files were written.
-        #convert_tar_to_rawcolor(inputdir,output_dir,subdir,maxfiles,maglev,settings,bayer_pattern)
-        #pass
         if os.path.splitext(thedir)[1]=='.tif':
             process=mp.Process(target=convert_tif_to_rawcolor, args=(thedir,output_dir,subdir,maxfiles,settings,ncount,dircount,lock1,lock2))
             processes.append(process)
             process.start()
     for process in processes:
         process.join()
-
-        #[ncount,dircount]=convert_tif_to_rawcolor(thedir,output_dir,subdir,maxfiles,settings,ncount,dircount)
-        # convert_tif_to_rawcolor(inputdir,output_dir,subdir,maxfiles,maglev,settings)
-        #pass
-
-#pdb.set_trace()
-#dirs=glob(root_data_path+"/*/") # this only grabs with the * and not *.*
-# set the directory magnification to load
-# this could be also input
-#maglev='high_mag_cam_rois/'
-#maglev='low_mag_cam_rois/'
-# the following was a test case need to use above to create a functional generalization
-#files=glob(dirs[12]+maglev+'**',recursive=True) # recursively go through the directory and get files
-# output paths...
-#full_color_output='u:/planktivore/output_test/' # can we bypass this and just take image as byte stream
-# and push to rormatted file?
-#full_color_reform='u:/planktivore/reformat_data/'
-#
-#if __name__ == "__main__":
-#    parser = argparse.ArgumentParser(description="Pad and rescale ROIs to square format.")
-#    parser.add_argument("--input_dir", type=Path, required=True, help="Path to the input directory containing ROI images.")
-#    parser.add_argument("--output_dir", type=Path, required=True, help="Path to the output directory where processed images will be saved.")
-#    args = parser.parse_args()
-#
-#    pad_and_rescale(args.input_dir, args.output_dir)
-
-#numfiles=np.arange(0,len(files))
-#for afile in numfiles:
-#    filetype1=files[afile].endswith('.tif')
-#    filetype2=files[afile].endswith('.tar')
