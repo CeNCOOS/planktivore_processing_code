@@ -137,7 +137,7 @@ if __name__ == "__main__":
     lock2=mp.Lock() # create a lock for the directory count
     processes=[] # create a list of processes
     # Loop through the directories and files and set up processing
-    for adir in range(0,26):
+    for adir in range(0,lentotal):
         thedir=dirs[adir]
         if os.path.splitext(thedir)[1]=='.log':
             continue
