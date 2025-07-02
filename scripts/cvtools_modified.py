@@ -507,7 +507,8 @@ def extract_features(img,
         # what if image is bigger than 224x224?
         # If the image is tiny this magnifies it.  
         roi_padded_rescaled = cv2.resize(roi_padded, (224, 224))
-        cv2.imwrite(os.path.join(abs_path,file_prefix+"_rawcolor.jpg"),roi_padded_rescaled)
+        cv2.imwrite(os.path.join(abs_path,file_prefix+"_rawcolor.png"),roi_padded_rescaled)
+        #cv2.imwrite(os.path.join(abs_path,file_prefix+"_rawcolor.jpg"),roi_padded_rescaled)
         # End of FLB adjustment
         # original line is below.
         #cv2.imwrite(os.path.join(abs_path,file_prefix+"_rawcolor.png"),output['rawcolor'])
