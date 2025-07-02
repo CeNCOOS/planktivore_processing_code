@@ -33,8 +33,10 @@ def convert_tif_to_rawcolor(thedir,outputdir,subdirmins,maglev,settings):
     #file_count=ncount.value # start with the current file count
     #base_output_dir=os.path.join(outputdir,subdir) # this is the base output directory
     #os.makedirs(base_output_dir,exist_ok=True) # create the base output directory if it doesn't exist
-        fsize=os.stat(thedir).st_size # get the file size
-        if fsize > 10:
+        fsize=cv2.imread(thedir)
+        if fsize is not None:
+        #fsize=os.stat(thedir).st_size # get the file size
+        #if fsize > 10:
         # determine if we need to create a new subdirectory
         #if file_count >= maxfiles:
         #    with lock2:
