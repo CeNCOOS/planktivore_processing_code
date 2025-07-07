@@ -18,5 +18,5 @@ def check_dir(basedir,filedate,maxminutes):
     # create the directory path
     dirpath=os.path.join(basedir,rstime)
     if not os.path.exists(dirpath):
-        os.makedirs(dirpath)
+        os.makedirs(dirpath, exist_ok=True)
     return dirpath
