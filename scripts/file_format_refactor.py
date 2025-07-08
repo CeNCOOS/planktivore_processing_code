@@ -24,74 +24,42 @@ def convert_tif_to_rawcolor(thedir,outputdir,subdirmins,maglev,settings):
     # maglev: magnification level (high vs. low)
     # settings: rims style settings
     filedate=date_from_name(thedir,maglev) # get the date from the file name
-    if filedate is None:
-        print(f"File {thedir} does not contain a valid date.")
-        return
-    elif filedate is not None:
-        subdir_path=check_dir(outputdir,filedate,subdirmins) # check if the directory exists and create it if not
-    #current_subdir=dircount.value # start with the current subdirectory count
-    #file_count=ncount.value # start with the current file count
-    #base_output_dir=os.path.join(outputdir,subdir) # this is the base output directory
-    #os.makedirs(base_output_dir,exist_ok=True) # create the base output directory if it doesn't exist
-        fsize=cv2.imread(thedir)
-        if fsize is not None:
-        #fsize=os.stat(thedir).st_size # get the file size
-        #if fsize > 10:
-        # determine if we need to create a new subdirectory
-        #if file_count >= maxfiles:
-        #    with lock2:
-        #        dircount.value += 1
-        #        current_subdir = dircount.value
-        #        with lock1:
-        #            ncount.value=0
-        #            file_count=ncount.value
-    # create the subdirectory
-        #asubdir=subdir+f'{current_subdir}'
-        #subdir_path=os.path.join(base_output_dir,asubdir) # create the subdirectory path
-        # subdir_path=os.path.join(base_output_dir,f'subdir_{current_subdir}') # create the subdirectory path
-        #os.makedirs(subdir_path,exist_ok=True) # create the subdirectory if it doesn't exist
-        # create the subdirectory path
-        # Not sure how universal this is but it works for the current data
-            idslash=thedir.rfind('/')
-            abpath=thedir[0:idslash+1]
-            ftif=thedir[idslash+1:]
-            img=cvtools.import_image(abpath,ftif,settings)
-            img_c_8bit=cvtools.convert_to_8bit(img,settings)
-            fout=ftif[:-4]
-            output=cvtools.extract_features(img_c_8bit,img,settings,
-                                            save_to_disk=True,
-                                            abs_path=os.path.join(subdir_path),file_prefix=fout)
-            # update the file count and lock value so multiprocessing works correctly.
-        #with lock1:
-        #    ncount.value += 1
-        #    file_count=ncount.value
-    return #file_count,current_subdir
+    try:
+        if filedate is None:
+            print(f"File {thedir} does not contain a valid date.")
+            return
+        elif filedate is not None:
+            subdir_path=check_dir(outputdir,filedate,subdirmins) # check if the directory exists and create it if not
+    #
+    # Note the file size is NOT the limiting factor.
+    # There is something special that a file with 12k bytes can still not be valid but one with 8k bytes can be.
+    #
+            fsize=cv2.imread(thedir)
+            if fsize is not None:
+                # Not sure how universal this is but it works for the current data
+                idslash=thedir.rfind('/')
+                abpath=thedir[0:idslash+1]
+                ftif=thedir[idslash+1:]
+                img=cvtools.import_image(abpath,ftif,settings)
+                img_c_8bit=cvtools.convert_to_8bit(img,settings)
+                fout=ftif[:-4]
+                output=cvtools.extract_features(img_c_8bit,img,settings,
+                                                save_to_disk=True,
+                                                abs_path=os.path.join(subdir_path),file_prefix=fout)
+            return #file_count,current_subdir
+    except Exception as e:
+        #print('Failure')
+        print(f"Error processing {thedir}")
+        print(repr(e))
 
 def convert_tar_to_rawcolor(thedir,outputdir,subdirmins,maglev,settings,bayer_pattern):
         try:
             tobj=tarfile.open(thedir,'r')
-        # the tar file could literally just have a directory and no files or data in it.
+            # the tar file could literally just have a directory and no files or data in it.
             tnames=tobj.getmembers()
             numfiles=np.arange(1,len(tnames))
-            #current_subdir=dircount.value # start with the current subdirectory count
-            #file_count=ncount.value # start with the current file count
-        #base_output_dir=os.path.join(outputdir,subdir) # this is the base output directory
-            #base_output_dir=outputdir
-            #os.makedirs(base_output_dir,exist_ok=True) # create the base output directory if it doesn't exist      
+            # loop through the files in the tar archive
             for afile in numfiles:
-                # check if we need to create a new subdirectory
-                #if ncount.value >= maxfiles:
-                #    with lock2:
-                #        dircount.value += 1
-                #        current_subdir = dircount.value
-                #        with lock1:
-                #            ncount.value=0
-                #            file_count=ncount.value
-                #asubdir=subdir+f'{current_subdir}'
-               #subdir_path=os.path.join(base_output_dir,asubdir) # create the subdirectory path
-            #subdir_path=os.path.join(base_output_dir,f'subdir_{current_subdir}') # create the subdirectory path 
-                #os.makedirs(subdir_path,exist_ok=True) # create the subdirectory if it doesn't exist
-            # create the subdirectory path  
                 tmpf=tnames[afile].name
                 filetime=date_from_name(tmpf,maglev) # get the date from the file name
                 if filetime is None:
@@ -99,33 +67,38 @@ def convert_tar_to_rawcolor(thedir,outputdir,subdirmins,maglev,settings,bayer_pa
                     continue
                 elif filetime is not None:
                     subdir_path=check_dir(outputdir,filetime,subdirmins)
-            # remove the dirctory at start of name?
+                    # remove the dirctory at start of name?
                     sslash=tmpf.rfind('/')
                     nfout=tmpf[sslash+1:]
                     idslash=nfout.rfind('\\')
                     fout=nfout[idslash+1:-4]
                     subdir_path=subdir_path.replace("\\","/")
                     fileobj=tobj.extractfile(tnames[afile])
-                    tiff_array=np.asarray(bytearray(fileobj.read()),dtype=np.uint8)
-                    img=cv2.imdecode(tiff_array,cv2.IMREAD_UNCHANGED)
-                    imgc=cv2.cvtColor(img,bayer_pattern)
-                    img_c_8bit=cvtools.convert_to_8bit(imgc,settings)
-                    output=cvtools.extract_features(img_c_8bit,imgc,settings,save_to_disk=True,
+                    try:
+                        tiff_array=np.asarray(bytearray(fileobj.read()),dtype=np.uint8)
+                        img=cv2.imdecode(tiff_array,cv2.IMREAD_UNCHANGED)
+                        imgc=cv2.cvtColor(img,bayer_pattern)
+                        img_c_8bit=cvtools.convert_to_8bit(imgc,settings)
+                        output=cvtools.extract_features(img_c_8bit,imgc,settings,save_to_disk=True,
                                                 abs_path=subdir_path,file_prefix=fout)
-                #with lock1:
-                #    ncount.value += 1
-                #    file_count=ncount.value
-        except:
-            print('Failure')
+                    except Exception as e:
+                        print(f"Failure to process a file in {thedir}")
+                        print(f"Error processing {tmpf}")
+                        print(repr(e))
+        except Exception as e:
             print(f"Error processing {thedir}")
-            #pdb.set_trace()
+            print(repr(e))
 
         return #file_count,current_subdir
 # 
 if __name__ == "__main__":
 # main
 # get some variables needed for processing the images
-    fid=open('c:/users/flbahr/setup_process_planktivore_refact.json','r')
+#    fid=open('c:/users/flbahr/setup_process_planktivore_lowmag.json','r')
+    fid=open('c:/users/flbahr/setup_process_planktivore_april2024.json','r')
+#    fid=open('c:/users/flbahr/setup_process_planktivore_april2024_lowmag.json','r')
+#    fid=open('c:/users/flbahr/setup_process_planktivore_oct2024.json','r')
+#    fid=open('c:/users/flbahr/setup_process_planktivore_refact.json','r')
     plset=json.load(fid)
     fid.close()
     # Now set variables based upon jason file data
@@ -142,6 +115,7 @@ if __name__ == "__main__":
     # find all the directories within this dir
     dirs=glob(input_dir+"/**",recursive=True) # this only grabs with the * and not *.*
     dirs=sorted(dirs)
+    #pdb.set_trace()
     # not sure which we want to use
     jf=open(pvtr_settings) # open the json file)
     settings=json.load(jf)
@@ -161,47 +135,56 @@ if __name__ == "__main__":
     #lock2=mp.Lock() # create a lock for the directory count
     processes=[] # create a list of processes
     # Loop through the directories and files and set up processing
-    for adir in range(0,50):
-    #for adir in range(0,lentotal):
-        thedir=dirs[adir]
-        if os.path.splitext(thedir)[1]=='.log':
-            continue
-        if os.path.splitext(thedir)[1]=='.txt':
-            continue   
-        if os.path.splitext(thedir)[1]=='.bin':
-            continue
-        if len(os.path.splitext(thedir)[1]) == 0:
-            continue   
+    #for adir in range(0,100):
+    ifiles=np.arange(0,lentotal,10)
+    flen=len(ifiles)
+    for snippet in range(0,flen):
+        fstart=snippet*10
+        fstop=snippet*10+10
+        if snippet+1==flen:
+            fstart=snippet*10
+            fstop=lentotal
+        for adir in range(fstart,fstop):
+        #for adir in range(0,lentotal):
+            thedir=dirs[adir]
+            if os.path.splitext(thedir)[1]=='.log':
+                continue
+            if os.path.splitext(thedir)[1]=='.txt':
+                continue   
+            if os.path.splitext(thedir)[1]=='.bin':
+                continue
+            if len(os.path.splitext(thedir)[1]) == 0:
+                continue   
         # check if we have the correct magnification level
-        if thedir.find(maglev) < 0:
-            continue
+            if thedir.find(maglev) < 0:
+                continue
         # for dos machine check the direction of slashes and fix
-        thedir=thedir.replace("\\","/")
+            thedir=thedir.replace("\\","/")
         #
         # Now the file should be either a tar file or a tif file I think.
         #
-        if os.path.splitext(thedir)[1]=='.tar':
-            # thedir is full path to the tar file
-            # input dir is directory from which this was called but the base_directory
-            # output is where we want to write to.
-            start_time=time.time()
-            #convert_tar_to_rawcolor(thedir,output_dir,subdirmins,maglev,settings,bayer_pattern)
-            try:
-                process=mp.Process(target=convert_tar_to_rawcolor, args=(thedir,output_dir,subdirmins,maglev,settings,bayer_pattern))
+            if os.path.splitext(thedir)[1]=='.tar':
+                # thedir is full path to the tar file
+                # input dir is directory from which this was called but the base_directory
+                # output is where we want to write to.
+                start_time=time.time()
+                #convert_tar_to_rawcolor(thedir,output_dir,subdirmins,maglev,settings,bayer_pattern)
+                try:
+                    process=mp.Process(target=convert_tar_to_rawcolor, args=(thedir,output_dir,subdirmins,maglev,settings,bayer_pattern))
+                    processes.append(process)
+                    process.start()
+                except:
+                    print('Failure')
+                    #pdb.set_trace()
+                # old call kept for if we need it.
+                #[ncount,dircount]=convert_tar_to_rawcolor(thedir,output_dir,subdir,maxfiles,settings,bayer_pattern,ncount,dircount)
+                end_time=time.time()
+                elapsed_time=end_time-start_time 
+                print(f"Time taken to process {thedir}: {elapsed_time:.2f} seconds")
+            if os.path.splitext(thedir)[1]=='.tif':
+                #convert_tif_to_rawcolor(thedir,output_dir,subdirmins,maglev,settings)
+                process=mp.Process(target=convert_tif_to_rawcolor, args=(thedir,output_dir,subdirmins,maglev,settings))
                 processes.append(process)
                 process.start()
-            except:
-                print('Failure')
-                #pdb.set_trace()
-            # old call kept for if we need it.
-            #[ncount,dircount]=convert_tar_to_rawcolor(thedir,output_dir,subdir,maxfiles,settings,bayer_pattern,ncount,dircount)
-            end_time=time.time()
-            elapsed_time=end_time-start_time 
-            print(f"Time taken to process {thedir}: {elapsed_time:.2f} seconds")
-        if os.path.splitext(thedir)[1]=='.tif':
-            #convert_tif_to_rawcolor(thedir,output_dir,subdirmins,maglev,settings)
-            process=mp.Process(target=convert_tif_to_rawcolor, args=(thedir,output_dir,subdirmins,maglev,settings))
-            processes.append(process)
-            process.start()
-    for process in processes:
-        process.join()
+        for process in processes:
+            process.join()
