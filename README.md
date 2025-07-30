@@ -1,15 +1,14 @@
-New updates:
-The code now reads the raw tarfiles from the planktivore directory on Thalassa and outputs the converted images to directories under Thalass\DeepSea-AI\data\raw\Deployment_name\
-The main code is file_reformat_refactor.py  This code uses multiprocessing and is set to only use 10 CPUs and loop through the files 10 at a time.
-The code calls several other pieces: check_dir.py (create date base directory names), date_from_name.py (get the date from the planktivore linux timestamp in the filename), and cvtools_modified.py (This code only outputs the reformated image file and not all the other files that cvtools.py outputs).  Output parameters are set up in the "setup_process_planktivore_refactor.json" files.  Due to using time to output the directory names a judicious choice of the number of minutes per subdirectory is necessary.  Otherwise, you could get too many files in a directory.
+This repository contains code to process the images from the MBARI Planktivore device on one of MBARI's LRAUVs.
+Data are currently placed in directories on the mass storage unit at MBARI called Thalassa.   The share name is Planktivore.  The directories on Thalassa/Planktivore are named with the convention
+YYYY-MM-DD-LRAH-dd where YYYY is the year, MM is the month, DD is the start day, AH stands for Ahi and dd is the vehicle deployment number.
 
-NOTE: Even though all files get processed some images are "not valid" and those are NOT written to disk.  This is determined by Paul Roberson's code.  So the total number of images will be less than the number of images you would estimate from the tar files.  So for a small test of 5 tar files (which should be 5999 images, in reality there are 5969 valid images).
+There are two versions of the code.  Both compute the same thing. file_format_refactor.py uses multiprocessing and is hard coded to use 10 CPUs and loop through files 10 at a time.
+The other code is reformat_using_pytorch.py.  This code uses the pytorch framework to do the same processing.  Currently it has a hard code of 4 workers, but can be set to a much higher number.
+Both programs have a hard coded link to a json file setup_process_planktivore_refactor.json.  This file specifies the path to the pvtr_proc_settings.json file, the magnification level to process, the input directory, the upper directory for the output, the basis for creating subdirectories in minutes, and max number of files (not used), and the bayer_pattern.  The example file has diretory paths using the windows format.  For use on a Linux machine the paths would need to be updated as appropriate.  Both versions of the code call a few other pieces of code.  These are: check_dir.py (create base directory names), date_from_name.py (get the date from the planktivore linux timestamp that is used in the file name), and cvtools_modified.py (This version of cvtools has been modified to only output the reformated image file and not all of the other aspects of the image such as masks etc.)
+Due to the code using time to create the output directory name, a judicious choice for the number of minutes per subdirectory is necessary to not have too many files in a directory.  For the high_mag_cam setting 10 minutes seems to work.  For the low_mag_cam a much shorter time of 1 minute is appropriate.  Note the links to the json files are currently coded as windows style links.  An YML file base upon my conda python installation is included and contains way more than necessary for running the code but is included for completeness.
 
-The repro is to make files availabe for collaboration on planktivore processing.  The repo contains the code to generate the zip file required by morphocluster to run.   The code for creating files that morphocluster wants are create_zip_file.py and index.csv.
+The original cvtools.py was from Paul Roberts repo https://github.com/mbari-org/rims-ptvr/tree/master/rois
 
-The files dualmag.ini, ptvr_proc_settings.json, and test_read_tar.py are for processing the raw planktivore images to color output files and create the zip file of the steps used during each images processing.  The code uses cvtools.py and Paul Roberts repo.
-https://github.com/mbari-org/rims-ptvr/tree/master/rois is the specific part of the repo where cvtoos.py is located.
+NOTE: Even though the code processes all files, some images are "not valid" and are NOT written to disk.  Cvtools and cvtools_modified determine if an image is valid or not and if it should be processed.  This means that the total number of images processed may be less than the estimated number of images just using the tar files.
 
-The proposed pathway for images from planktivore are on the slide planktivore_data_pipeline.ppx
-
-As the data stream is refined more files will be added along with notes and documentation.
+NOTE: morphocluster_files are legacy files and can be ignored.
