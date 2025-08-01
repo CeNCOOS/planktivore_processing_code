@@ -181,12 +181,19 @@ class TarAndTifDataset(Dataset):
 if __name__ == "__main__":
     # --- Setup: Load settings from JSON (as in original code) ---
     # Create a dummy json file for testing if it doesn't exist
-    json_path = 'c:/users/flbahr/setup_process_planktivore_octtest.json'
+    json_file=input("Enter the path to the JSON file with settings: ")
+    #json_path = 'c:/users/flbahr/setup_process_planktivore_octtest.json'
     #pvtr_settings_path = 'c:/users/flbahr/dummy_settings.json'
 
     # Load settings
-    with open(json_path, 'r') as fid:
-        plset = json.load(fid)
+    try: 
+        fid=open(json_file,'r')
+    except Exeception as e:
+        print(f"Error open JSON file: {repr(e)}")
+    
+    #with open(json_path, 'r') as fid:
+    plset = json.load(fid)
+    fclose(fid)
     
     pvtr_settings_file = plset[0]['pvtr_setting']
     maglev = plset[0]['maglev']
@@ -194,6 +201,7 @@ if __name__ == "__main__":
     output_dir_root = plset[0]['outputdir']
     subdirmins = plset[0]['subdirmins']
     bayer_pattern_str = plset[0]['bayer_pattern']
+    ncore=plset[0]['ncore']
 
     # Load actual pvtr settings
     with open(pvtr_settings_file, 'r') as jf:
@@ -227,9 +235,9 @@ if __name__ == "__main__":
     # num_workers > 0 enables multiprocessing for data loading, speeding it up
     dataloader = DataLoader(
         dataset,
-        batch_size=4,
+        batch_size=ncore,
         shuffle=True, # Shuffle the data each epoch
-        num_workers=4, # Adjust based on your CPU cores
+        num_workers=ncore, # Adjust based on your CPU cores
         pin_memory=True # For faster GPU transfers
     )
 
