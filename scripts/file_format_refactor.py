@@ -95,10 +95,16 @@ if __name__ == "__main__":
 # main
 # get some variables needed for processing the images
 #    fid=open('c:/users/flbahr/setup_process_planktivore_lowmag.json','r')
-    fid=open('c:/users/flbahr/setup_process_planktivore_april2024.json','r')
+    #fid=open('c:/users/flbahr/setup_process_planktivore_april2024.json','r')
+     json_file=input("Enter the path to the JSON file with settings: ")
 #    fid=open('c:/users/flbahr/setup_process_planktivore_april2024_lowmag.json','r')
 #    fid=open('c:/users/flbahr/setup_process_planktivore_oct2024.json','r')
 #    fid=open('c:/users/flbahr/setup_process_planktivore_refact.json','r')
+    try:
+        fid=open(json_file,'r')
+    except Exception as e:
+        print(f"Error opening JSON file: {repr(e)}")
+
     plset=json.load(fid)
     fid.close()
     # Now set variables based upon jason file data
@@ -112,6 +118,7 @@ if __name__ == "__main__":
     # This will probably go away as max files is NOT how we will be working this...
     #maxfiles=plset[0]['maxfiles']
     bayer_pattern=plset[0]['bayer_pattern']
+    ncore=plset[0]['ncore'] 
     # find all the directories within this dir
     dirs=glob(input_dir+"/**",recursive=True) # this only grabs with the * and not *.*
     dirs=sorted(dirs)
@@ -136,13 +143,13 @@ if __name__ == "__main__":
     processes=[] # create a list of processes
     # Loop through the directories and files and set up processing
     #for adir in range(0,100):
-    ifiles=np.arange(0,lentotal,10)
+    ifiles=np.arange(0,lentotal,ncore)
     flen=len(ifiles)
     for snippet in range(0,flen):
-        fstart=snippet*10
-        fstop=snippet*10+10
+        fstart=snippet*ncore
+        fstop=snippet*ncore+ncore
         if snippet+1==flen:
-            fstart=snippet*10
+            fstart=snippet*ncore
             fstop=lentotal
         for adir in range(fstart,fstop):
         #for adir in range(0,lentotal):
