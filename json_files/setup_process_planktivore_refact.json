@@ -6,6 +6,7 @@
         "outputdir":"u:/planktivore/2025_April-Ahi-Planktivore/",
         "subdirmins":"10",
         "maxfiles":10000,
-        "bayer_pattern":"COLOR_BAYER_RG2RGB"
+        "bayer_pattern":"COLOR_BAYER_RG2RGB",
+        "ncore":10
     }
 ]
