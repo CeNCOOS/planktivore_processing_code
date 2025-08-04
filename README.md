@@ -7,7 +7,14 @@ read in from the JSON file.
 The other code is reformat_using_pytorch.py.  This code uses the pytorch framework to do the same processing.  The number of processors is also
  refrenced from the JSON file.
 The setup JSON files are now accessed by input from the prompt. setup_process_planktivore_refactor.json.  This file specifies the path to the pvtr_proc_settings.json file, the magnification level to process, the input directory, the upper directory for the output, the basis for creating subdirectories in minutes, and max number of files (not used), the bayer_pattern and the number of processors to use.  The example file has diretory paths using the windows format.  For use on a Linux machine the paths would need to be updated as appropriate.  Both versions of the code call a few other pieces of code.  These are: check_dir.py (create base directory names), date_from_name.py (get the date from the planktivore linux timestamp that is used in the file name), and cvtools_modified.py (This version of cvtools has been modified to only output the reformated image file and not all of the other aspects of the image such as masks etc.) The cvtools_modified.py also has had .square modified to .footprint_rectangle to remove code depreciation warnings.
-Due to the code using time to create the output directory name, a judicious choice for the number of minutes per subdirectory is necessary to not have too many files in a directory.  For the high_mag_cam setting 10 minutes seems to work.  For the low_mag_cam a much shorter time of 1 minute is appropriate.  Note the links to the json files are currently coded as windows style links.  An YML file base upon my conda python installation is included and contains way more than necessary for running the code but is included for completeness.
+Due to the code using time to create the output directory name, a judicious choice for the number of minutes per subdirectory is necessary to not have too many files in a directory.  For the high_mag_cam setting 10 minutes seems to work.  For the low_mag_cam a much shorter time of 1 minute is appropriate.  Note the links to the json files are currently coded as windows style links.  An YML file base upon my conda python installation is included and contains way more than necessary for running the code but is included for completeness.  The YML file flbahr_deeprip.yml has a minimal install for the machine named deeprip.
+
+How to run code:
+1) Install in a virtual environment the necessary python modules
+2) Locate the directory with the planktivore images you want to process
+3) Define an output directory to put the processed images
+4) Create/Edit the configuration JSON file with the appropriate paths, time for subdir output, and number of cores.
+5) Run the code
 
 The original cvtools.py was from Paul Roberts repo https://github.com/mbari-org/rims-ptvr/tree/master/rois
 
