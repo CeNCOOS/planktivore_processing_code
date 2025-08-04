@@ -96,6 +96,8 @@ class TarAndTifDataset(Dataset):
                 filedate=date_from_name(img_path,self.maglev)
                 subdirpath=check_dir(self.output_dir,filedate,self.subdirmin)
                 #idslash=img_path.rfind('/')
+                # The slash issue can we do a img_path.replace('\\','/') 
+                # and use above code for idslash?
                 idslash=img_path.rfind('\\')
                 abpath=img_path[0:idslash+1]
                 ftif=img_path[idslash+1:]
@@ -133,6 +135,7 @@ class TarAndTifDataset(Dataset):
             else: # It's an image inside a .tar file
                 filedate=date_from_name(tar_member_name,self.maglev)
                 subdirpath=check_dir(self.output_dir,filedate,self.subdirmin)
+                # again issue with slashes?
                 idslash=tar_member_name.rfind('/')
                 ftif=tar_member_name[idslash+1:]
                 fout=ftif[:-4]
