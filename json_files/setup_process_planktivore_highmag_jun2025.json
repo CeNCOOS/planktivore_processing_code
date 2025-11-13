@@ -1,0 +1,12 @@
+[
+    {
+        "pvtr_setting":"u:/planktivore/ptvr_proc_settings.json",
+        "maglev":"high_mag_cam",
+        "inputdir":"Y:/2025-06-09-LRAH-31/",
+        "outputdir":"z:/data/Planktivore/raw/2025_June-Ahi-Planktivore/high_mag_cam/",
+        "subdirmins":"1",
+        "maxfiles":10000,
+        "bayer_pattern":"COLOR_BAYER_RG2RGB",
+        "ncore":10
+    }
+]
