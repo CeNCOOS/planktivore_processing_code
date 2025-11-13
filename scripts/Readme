@@ -1,3 +1,9 @@
 Code for processing raw planktivore "tif" images into full color "png" and "jpeg" images.
 The json_files are variables to be fed to the code to set some of the processing parameters so that they are not hard coded.
 
+The code was designed for the MBARI/Synchro missions.
+For October 2025 an offset between the LRAUV clock and the clock used for the Planktivore file names was discovered.
+Bespoke files to process this one set of data have been added and have had "oct2025" appended to the names.  
+Due to a quick turn around the "high_mag_cam" and "low_mag_cam" expression was hard coded in to these particular files.
+It needs to be adjusted as needed for the type of files that are being processed.  It is hoped that this is a one-off problem.
+
