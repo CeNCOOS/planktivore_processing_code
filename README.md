@@ -20,4 +20,8 @@ The original cvtools.py was from Paul Roberts repo https://github.com/mbari-org/
 
 NOTE: Even though the code processes all files, some images are "not valid" and are NOT written to disk.  Cvtools and cvtools_modified determine if an image is valid or not and if it should be processed.  This means that the total number of images processed may be less than the estimated number of images just using the tar files.
 
+UPDATE: 
+The code has been updated to read the files and additional code has been written to use similar scripts but write a list of the filenames to a parquet file.
+Python notebooks originally written by Patrick Daniel have been included in the notebook section.  These have been updated to read the camera log files and differentiate between missing data (NaN) and true zeros due to no ROIs written but the camera being active.  There were times when the camera was not on, these are now set to NaN as opposed to zero.  A stab has been made to make the notebooks into a script.  The script and the needed modules are included in the scripts directory.  These have not been tested and need some clean up but were made available for other to modify and work with for the planktivore data pipeline.
+
 NOTE: morphocluster_files are legacy files and can be ignored.
