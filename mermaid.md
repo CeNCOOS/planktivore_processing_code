@@ -13,6 +13,9 @@ O2[pandas data frame]
 M1[(Thalassa/models/Planktivore/mbari-ptvr-vits-b8-20251009)]
 P4[patrick_inference.py]
 O3[Thalassa/data/Planktivore/raw/../inference_results_mbari_ptvr_vits_b8-20251009.parquet]
+P5[synchro-Apr2025-planktivore-occurrance-high-mag-bytime.ipynb]
+O4[lrauv_with_class_avg_by_time.parquet]
+V1[(lrauv_X_scieng.nc)]
 
    subgraph Reformat_Images
       direction TB
@@ -26,4 +29,10 @@ O3[Thalassa/data/Planktivore/raw/../inference_results_mbari_ptvr_vits_b8-2025100
    I-->Write_Image_Names_to_File-->O1
    I-->P3-->O2
    M1-->P4-->O3
+   OI-->P4
+   
+   O3-->P5-->O4
+   O2-->P5
+   O1-->P5
+   V1-->P5
 ```
