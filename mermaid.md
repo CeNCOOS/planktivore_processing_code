@@ -12,7 +12,7 @@ P3[read_planktivore_camlogs.py]
 O2[pandas data frame]
 M1[(Thalassa/models/Planktivore/mbari-ptvr-vits-b8-20251009)]
 P4[patrick_inference.py]
-O3[(Thalassa/data/Planktivore/raw/../inference_results_mbari_ptvr_vits_b8-20251009.parquet)]
+O3[Thalassa/data/Planktivore/raw/../inference_results_mbari_ptvr_vits_b8-20251009.parquet]
 
    subgraph Reformat_Images
       direction TB
