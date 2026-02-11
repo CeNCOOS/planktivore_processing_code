@@ -9,18 +9,17 @@ J2[setup_process_planktivore_highmag_apr2024parquet.json]
 P2[names_to_parquet.py]
 O1[April_2024_Ahi_highmag.parquet]
 P3[read_planktivore_camlogs.py]
-A["Reformat Images"]
-B["Write Image Names to File"]
+O2[pandas data frame]
 
-
-   subgraph A
+   subgraph Reformat_Images
       direction TB
         J1-->P1
    end
-   subgraph B
+   subgraph Write_Image_Names_to_File
       direction TB
          J2-->P2
    end
-   I-->A-->OI
-   I-->B-->O1
+   I-->Reformat_Images-->OI
+   I-->Write_Image_Names_to_File-->O1
+   I-->P3-->O2
 ```
